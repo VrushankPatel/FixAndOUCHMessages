@@ -140,3 +140,34 @@ print(f"Type: {message_type}, Order Token: {order_token}, Side: {buy_sell}, Shar
 
 🚀 **Next Steps**: Implement a **FIX-to-OUCH bridge**
 
+## **5. FIX-to-OUCH Bridge Implementation**
+### **Steps to Implement a FIX-to-OUCH Bridge**
+1. **Receive FIX messages** (via TCP/WebSocket)
+2. **Parse the FIX message** (extract relevant fields)
+3. **Map FIX fields to OUCH fields** (ensure correct format)
+4. **Pack the OUCH message into binary** (using `struct.pack`)
+5. **Send the OUCH message** (to the exchange via SoupBinTCP)
+
+### **FIX-to-OUCH Field Mapping**
+| FIX Tag | FIX Field Name  | OUCH Field Name  | Size (Bytes) |
+|---------|---------------|----------------|--------------|
+| 11      | ClOrdID       | Order Token    | 14           |
+| 54      | Side (1=Buy, 2=Sell) | Buy/Sell   | 1            |
+| 38      | OrderQty      | Shares         | 4            |
+| 55      | Symbol        | Stock Symbol   | 8            |
+| 44      | Price (decimal) | Price (integer) | 4            |
+
+### **Python Implementation of FIX-to-OUCH Conversion**
+```python
+def fix_to_ouch(fix_msg):
+    fields = {kv.split('=')[0]: kv.split('=')[1] for kv in fix_msg.split('\x01') if '=' in kv}
+    order_token = fields.get("11", "UNKNOWN1234567").ljust(14)[:14].encode()
+    side = b'B' if fields.get("54") == "1" else b'S'
+    shares = struct.pack(">I", int(fields.get("38", 1)))
+    stock_symbol = fields.get("55", "AAPL").ljust(8)[:8].encode()
+    price = struct.pack(">I", int(float(fields.get("44", 0)) * 100))
+    return b'O' + order_token + side + shares + stock_symbol + price
+```
+
+
+
