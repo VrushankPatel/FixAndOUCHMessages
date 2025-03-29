@@ -138,5 +138,5 @@ print(f"Type: {message_type}, Order Token: {order_token}, Side: {buy_sell}, Shar
 - **OUCH via SoupBinTCP is ultra-fast** and ideal for **high-frequency trading (HFT)**.
 - Understanding both is essential for building efficient trading systems!
 
-🚀 **Next Steps**: Implement a **FIX-to-OUCH bridge**? Let me know!
+🚀 **Next Steps**: Implement a **FIX-to-OUCH bridge**
 
